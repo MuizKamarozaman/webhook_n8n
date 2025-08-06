@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Plan Extractor</title>
+    <script src="https://unpkg.com/mammoth@1.4.14/mammoth.browser.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 4px;
+            background: #ecf0f1;
+        }
+        input[type="submit"] {
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background: #2980b9;
+        }
+        input[type="submit"]:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status-loading {
+            background: #f39c12;
+            color: white;
+        }
+        .status-success {
+            background: #27ae60;
+            color: white;
+        }
+        .status-error {
+            background: #e74c3c;
+            color: white;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            display: none;
+        }
+        .download-btn {
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .download-btn:hover {
+            background: #2ecc71;
+        }
+        .extracted-data {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📚 Lesson Plan Data Extractor</h2>
+        
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="fileInput">Choose Word (.docx) file:</label>
+                <input type="file" id="fileInput" name="file" accept=".docx" required>
+            </div>
+            
+            <input type="submit" value="Extract & Generate Document" id="submitBtn">
+        </form>
+        
+        <div id="status"></div>
+        
+        <div id="results" class="results">
+            <h3>Extraction Results:</h3>
+            <button id="downloadBtn" class="download-btn" style="display: none;">
+                📄 Download Extracted Document
+            </button>
+            <div id="extractedData" class="extracted-data"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        const extractedDataDiv = document.getElementById('extractedData');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Update this to your actual n8n webhook URL
+        const webhookUrl = "https://n8n.jiosgroup.com/webhook-test/096306be-c7d5-4576-afe5-8aa2f3f04ee2";
+
+        let downloadData = null;
+
+        function showStatus(message, type = 'loading') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status-${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        function displayResults(data) {
+            resultsDiv.style.display = 'block';
+            
+            // Display extracted data in a readable format
+            const header = data.data.header;
+            const activities = data.data.activities;
+            
+            let html = `
+                <h4>📋 Header Information:</h4>
+                <ul>
+                    <li><strong>Subject:</strong> ${header.subject}</li>
+                    <li><strong>Week:</strong> ${header.week}</li>
+                    <li><strong>Date:</strong> ${header.date}</li>
+                    <li><strong>Day:</strong> ${header.day}</li>
+                    <li><strong>Time:</strong> ${header.time}</li>
+                    <li><strong>Class:</strong> ${header.class}</li>
+                    <li><strong>Unit:</strong> ${header.unit}</li>
+                    <li><strong>Topic:</strong> ${header.topic}</li>
+                </ul>
+                
+                <h4>📚 Standards & Objectives:</h4>
+                <ul>
+                    <li><strong>Content Standard:</strong> ${header.content_standard}</li>
+                    <li><strong>Learning Standard:</strong> ${header.learning_standard}</li>
+                    <li><strong>Learning Objectives:</strong> ${header.learning_objectives}</li>
+                    <li><strong>CCE Knowledge:</strong> ${header.cce_knowledge}</li>
+                    <li><strong>CCE Value:</strong> ${header.cce_value}</li>
+                </ul>
+                
+                <h4>🎯 Activities:</h4>
+            `;
+            
+            activities.forEach(activity => {
+                html += `
+                    <div style="margin-bottom: 15px;">
+                        <strong>${activity.type}:</strong>
+                        <ol>
+                `;
+                activity.items.forEach(item => {
+                    html += `<li>${item}</li>`;
+                });
+                html += `</ol></div>`;
+            });
+            
+            extractedDataDiv.innerHTML = html;
+            
+            // Store download data
+            downloadData = {
+                content: data.downloadUrl,
+                fileName: data.fileName
+            };
+            
+            downloadBtn.style.display = 'block';
+        }
+
+        downloadBtn.addEventListener('click', function() {
+            if (downloadData) {
+                // Create download link
+                const link = document.createElement('a');
+                link.href = downloadData.content;
+                link.download = downloadData.fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('Document downloaded successfully!', 'success');
+                setTimeout(hideStatus, 3000);
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showStatus('Please select a file.', 'error');
+                return;
+            }
+
+            showStatus('Processing document...', 'loading');
+            submitBtn.disabled = true;
+            resultsDiv.style.display = 'none';
+
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const arrayBuffer = event.target.result;
+
+                showStatus('Extracting text from document...', 'loading');
+
+                mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+                    .then(function(result) {
+                        const text = result.value;
+
+                        showStatus('Sending to AI for data extraction...', 'loading');
+
+                        const payload = {
+                            fileName: file.name,
+                            fileContent: text
+                        };
+
+                        return fetch(webhookUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Success:', data);
+                        
+                        if (data.success) {
+                            showStatus('✅ Extraction completed successfully!', 'success');
+                            displayResults(data);
+                        } else {
+                            throw new Error(data.message || 'Unknown error occurred');
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        showStatus(`❌ Error: ${error.message}`, 'error');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                    });
+            };
+
+            reader.onerror = function() {
+                showStatus('❌ Failed to read the file.', 'error');
+                submitBtn.disabled = false;
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>

@@ -2,568 +2,304 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Lesson Plan Converter</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Plan Processor</title>
     <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
+        
         .container {
-            max-width: 650px;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 24px;
-            padding: 50px 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.2);
         }
-        .header {
+        
+        h1 {
             text-align: center;
-            margin-bottom: 50px;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
         }
-        .header h1 {
-            font-size: 3em;
-            margin: 0 0 10px 0;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-        .header p {
-            color: #64748b;
-            font-size: 1.1em;
-            margin: 0;
-            font-weight: 500;
-        }
-        .upload-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        @media (max-width: 768px) {
-            .upload-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-        .file-upload {
-            background: #f8fafc;
-            border-radius: 16px;
+        
+        .upload-section {
+            margin-bottom: 30px;
             padding: 25px;
-            border: 2px dashed #cbd5e0;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            text-align: center;
             transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            cursor: pointer;
         }
-        .file-upload:hover {
+        
+        .upload-section:hover {
             border-color: #667eea;
-            background: #edf2f7;
-            transform: translateY(-2px);
+            background-color: #f8f9ff;
         }
-        .file-upload.has-file {
-            border-color: #48bb78;
-            background: #f0fff4;
-            border-style: solid;
-        }
-        .file-upload input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        .upload-icon {
-            font-size: 3em;
+        
+        .upload-section h3 {
+            color: #555;
             margin-bottom: 15px;
-            opacity: 0.7;
+            font-size: 1.3em;
         }
-        .file-upload.has-file .upload-icon {
-            opacity: 1;
+        
+        .file-input {
+            display: none;
         }
-        .upload-text {
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        .upload-hint {
-            color: #718096;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        .file-name {
-            color: #667eea;
-            font-weight: 600;
-            font-size: 0.9em;
-            background: rgba(102, 126, 234, 0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            word-break: break-all;
-        }
-        .convert-section {
-            text-align: center;
-        }
-        .convert-btn {
+        
+        .file-button {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            padding: 12px 25px;
             border: none;
-            padding: 18px 40px;
-            border-radius: 16px;
-            font-size: 1.2em;
-            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .file-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e8f4fd;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .process-button {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-            position: relative;
-            overflow: hidden;
+            margin-top: 20px;
         }
-        .convert-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        
+        .process-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        .convert-btn:active {
-            transform: translateY(-1px);
-        }
-        .convert-btn:disabled {
-            background: linear-gradient(135deg, #a0aec0, #718096);
+        
+        .process-button:disabled {
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
-        .convert-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s;
-        }
-        .convert-btn:hover::before {
-            left: 100%;
-        }
-        .progress-container {
-            margin: 30px 0;
-            display: none;
-        }
-        .progress-text {
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        .progress-bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 4px;
-            transition: width 0.8s ease;
-            position: relative;
-        }
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .result {
-            margin-top: 40px;
-            padding: 25px;
-            border-radius: 16px;
-            display: none;
-            animation: slideIn 0.5s ease;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .result.success {
-            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
-            border: 1px solid #48bb78;
-            color: #22543d;
-        }
-        .result.error {
-            background: linear-gradient(135deg, #fed7d7, #fc8181);
-            border: 1px solid #e53e3e;
-            color: #742a2a;
-        }
-        .result-icon {
-            font-size: 2em;
-            margin-bottom: 15px;
-        }
-        .download-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+        
+        .status {
             margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
         }
-        .download-card {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
+        
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.processing {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
             padding: 20px;
-            text-align: center;
-            border: 1px solid rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 30px;
         }
-        .download-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        
+        .instructions h3 {
+            color: #495057;
+            margin-bottom: 15px;
         }
-        .download-link {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #6c757d;
         }
-        .download-link:hover {
-            background: #5a67d8;
-            transform: scale(1.05);
-        }
-        .file-info {
-            font-size: 0.9em;
-            color: #64748b;
-            margin-bottom: 10px;
-        }
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .stat-item {
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #667eea;
-        }
-        .stat-label {
-            font-size: 0.9em;
-            color: #64748b;
-            margin-top: 5px;
+        
+        .instructions li {
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🎓 AI Lesson Converter</h1>
-            <p>Transform your lesson plans with AI-powered automation</p>
+        <h1>📚 Lesson Plan Processor</h1>
+        
+        <div class="instructions">
+            <h3>How it works:</h3>
+            <ul>
+                <li><strong>Source File:</strong> Upload the document containing lesson plan data to extract</li>
+                <li><strong>Template File:</strong> Upload your template with placeholders like {{SUBJECT}}, {{WEEK}}, etc.</li>
+                <li>Click "Process Files" to get your filled lesson plan document</li>
+            </ul>
         </div>
         
-        <div class="upload-grid">
-            <div class="file-upload" id="originalUpload">
-                <input type="file" id="originalFile" accept=".docx">
-                <div class="upload-icon">📄</div>
-                <div class="upload-text">Original Lesson Plan</div>
-                <div class="upload-hint">Upload your current lesson plan</div>
-                <div id="originalFileName" class="file-name" style="display: none;"></div>
+        <form id="uploadForm">
+            <div class="upload-section">
+                <h3>📄 Source Document</h3>
+                <p>Upload the document to extract data from</p>
+                <input type="file" id="sourceFile" class="file-input" accept=".docx,.doc">
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                    <strong>Supported:</strong> Microsoft Word documents (.docx, .doc)
+                </p>
+                <button type="button" class="file-button" onclick="document.getElementById('sourceFile').click()">
+                    Choose Source File
+                </button>
+                <div id="sourceFileInfo" class="file-info" style="display: none;"></div>
             </div>
             
-            <div class="file-upload" id="templateUpload">
-                <input type="file" id="templateFile" accept=".docx">
-                <div class="upload-icon">📋</div>
-                <div class="upload-text">Empty Template</div>
-                <div class="upload-hint">Upload your new template format</div>
-                <div id="templateFileName" class="file-name" style="display: none;"></div>
+            <div class="upload-section">
+                <h3>📋 Template Document</h3>
+                <p>Upload your template with {{placeholders}}</p>
+                <input type="file" id="templateFile" class="file-input" accept=".docx,.doc">
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                    <strong>Template:</strong> Word document with {{PLACEHOLDER}} text to replace
+                </p>
+                <button type="button" class="file-button" onclick="document.getElementById('templateFile').click()">
+                    Choose Template File
+                </button>
+                <div id="templateFileInfo" class="file-info" style="display: none;"></div>
             </div>
-        </div>
-        
-        <div class="convert-section">
-            <button class="convert-btn" id="convertBtn" onclick="convertLessonPlan()">
-                ✨ Convert with AI Magic
+            
+            <button type="submit" class="process-button" id="processButton" disabled>
+                🚀 Process Files
             </button>
-        </div>
+        </form>
         
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-text" id="progressText">Processing your files...</div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
-            </div>
-        </div>
-        
-        <div class="result" id="result"></div>
+        <div id="status" class="status" style="display: none;"></div>
     </div>
 
     <script>
-        // File upload handlers with enhanced UX
-        function setupFileUpload(inputId, uploadId, filenameId) {
-            const input = document.getElementById(inputId);
-            const upload = document.getElementById(uploadId);
-            const filename = document.getElementById(filenameId);
-            
-            input.addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                    upload.classList.add('has-file');
-                    filename.textContent = e.target.files[0].name;
-                    filename.style.display = 'block';
-                    
-                    // Update upload icon and text
-                    const icon = upload.querySelector('.upload-icon');
-                    const text = upload.querySelector('.upload-text');
-                    icon.textContent = '✅';
-                    text.textContent = 'File Ready';
-                } else {
-                    upload.classList.remove('has-file');
-                    filename.style.display = 'none';
-                }
-            });
-            
-            // Drag and drop functionality
-            upload.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                upload.style.borderColor = '#667eea';
-                upload.style.background = '#edf2f7';
-            });
-            
-            upload.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                if (!upload.classList.contains('has-file')) {
-                    upload.style.borderColor = '#cbd5e0';
-                    upload.style.background = '#f8fafc';
-                }
-            });
-            
-            upload.addEventListener('drop', function(e) {
-                e.preventDefault();
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && files[0].name.endsWith('.docx')) {
-                    input.files = files;
-                    input.dispatchEvent(new Event('change'));
-                }
-            });
-        }
+        // Replace with your actual n8n webhook URL
+        const WEBHOOK_URL = 'https://n8n.jiosgroup.com/webhook-test/upload-files';
         
-        // Initialize file uploads
-        setupFileUpload('originalFile', 'originalUpload', 'originalFileName');
-        setupFileUpload('templateFile', 'templateUpload', 'templateFileName');
+        const sourceFileInput = document.getElementById('sourceFile');
+        const templateFileInput = document.getElementById('templateFile');
+        const processButton = document.getElementById('processButton');
+        const statusDiv = document.getElementById('status');
         
-        // Progress simulation steps
-        const progressSteps = [
-            { percent: 10, text: "Uploading files..." },
-            { percent: 25, text: "Converting documents to text..." },
-            { percent: 40, text: "AI analyzing lesson structure..." },
-            { percent: 60, text: "Extracting lesson data..." },
-            { percent: 75, text: "Applying new template format..." },
-            { percent: 90, text: "Generating final documents..." },
-            { percent: 100, text: "Finalizing conversion..." }
-        ];
+        let sourceFile = null;
+        let templateFile = null;
         
-        function animateProgress(steps, onComplete) {
-            let currentStep = 0;
-            const progressBar = document.getElementById('progressBar');
-            const progressText = document.getElementById('progressText');
-            
-            function nextStep() {
-                if (currentStep < steps.length) {
-                    const step = steps[currentStep];
-                    progressBar.style.width = step.percent + '%';
-                    progressText.textContent = step.text;
-                    currentStep++;
-                    
-                    const delay = currentStep === steps.length ? 500 : 1000 + Math.random() * 1000;
-                    setTimeout(nextStep, delay);
-                } else {
-                    onComplete();
-                }
+        // File selection handlers
+        sourceFileInput.addEventListener('change', function(e) {
+            sourceFile = e.target.files[0];
+            if (sourceFile) {
+                document.getElementById('sourceFileInfo').innerHTML = `✅ Selected: ${sourceFile.name} (${(sourceFile.size/1024).toFixed(1)}KB)`;
+                document.getElementById('sourceFileInfo').style.display = 'block';
             }
-            nextStep();
-        }
-        
-        async function convertLessonPlan() {
-            const originalFile = document.getElementById('originalFile').files[0];
-            const templateFile = document.getElementById('templateFile').files[0];
-            const resultDiv = document.getElementById('result');
-            const convertBtn = document.getElementById('convertBtn');
-            const progressContainer = document.getElementById('progressContainer');
-
-            // Validation with enhanced messaging
-            if (!originalFile || !templateFile) {
-                showResult('Please select both files before converting.', 'error', '❌');
-                return;
-            }
-            
-            if (!originalFile.name.endsWith('.docx') || !templateFile.name.endsWith('.docx')) {
-                showResult('Please ensure both files are in .docx format.', 'error', '❌');
-                return;
-            }
-
-            // UI Updates
-            convertBtn.disabled = true;
-            convertBtn.innerHTML = '🔄 <span style="margin-left: 8px;">Processing...</span>';
-            progressContainer.style.display = 'block';
-            resultDiv.style.display = 'none';
-
-            // Prepare form data
-            const formData = new FormData();
-            formData.append('original', originalFile);
-            formData.append('template', templateFile);
-
-            try {
-                // Start progress animation
-                const conversionPromise = fetch('https://n8n.jiosgroup.com/webhook-test/convert-lesson', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                // Animate progress while waiting for response
-                let conversionComplete = false;
-                const progressPromise = new Promise(resolve => {
-                    animateProgress(progressSteps, resolve);
-                });
-                
-                // Wait for both animation and actual conversion
-                const [response] = await Promise.all([conversionPromise, progressPromise]);
-                const data = await response.json();
-                
-                progressContainer.style.display = 'none';
-                
-                if (response.ok && data.success) {
-                    displaySuccessResult(data);
-                } else {
-                    showResult('Conversion failed: ' + (data.error || 'Unknown error occurred'), 'error', '❌');
-                }
-
-            } catch (error) {
-                progressContainer.style.display = 'none';
-                showResult('Connection error: ' + error.message, 'error', '❌');
-            } finally {
-                convertBtn.disabled = false;
-                convertBtn.innerHTML = '✨ Convert with AI Magic';
-            }
-        }
-        
-        function displaySuccessResult(data) {
-            let resultHTML = `
-                <div class="result-icon">🎉</div>
-                <div style="font-size: 1.3em; font-weight: 700; margin-bottom: 15px;">
-                    Conversion Completed Successfully!
-                </div>
-            `;
-            
-            if (data.download_url) {
-                // Single file result
-                resultHTML += `
-                    <div class="download-grid">
-                        <div class="download-card">
-                            <div class="file-info">📄 ${data.fileName || 'Converted Lesson Plan'}</div>
-                            <a href="${data.download_url}" class="download-link" download>
-                                📥 Download File
-                            </a>
-                        </div>
-                    </div>
-                `;
-                
-                resultHTML += `
-                    <div class="stats">
-                        <div class="stat-item">
-                            <div class="stat-number">1</div>
-                            <div class="stat-label">File Generated</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">Ready</div>
-                            <div class="stat-label">Status</div>
-                        </div>
-                    </div>
-                `;
-                
-            } else if (data.files && data.files.length > 0) {
-                // Multiple files result
-                resultHTML += '<div class="download-grid">';
-                data.files.forEach((file, index) => {
-                    resultHTML += `
-                        <div class="download-card">
-                            <div class="file-info">📄 ${file.fileName}</div>
-                            <a href="${file.downloadUrl}" class="download-link" download>
-                                📥 Download Lesson ${index + 1}
-                            </a>
-                        </div>
-                    `;
-                });
-                resultHTML += '</div>';
-                
-                resultHTML += `
-                    <div class="stats">
-                        <div class="stat-item">
-                            <div class="stat-number">${data.files.length}</div>
-                            <div class="stat-label">Files Generated</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">Ready</div>
-                            <div class="stat-label">Status</div>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            showResult(resultHTML, 'success', '');
-        }
-
-        function showResult(message, type, icon = '') {
-            const resultDiv = document.getElementById('result');
-            if (icon) {
-                message = `<div class="result-icon">${icon}</div>` + message;
-            }
-            resultDiv.innerHTML = message;
-            resultDiv.className = `result ${type}`;
-            resultDiv.style.display = 'block';
-            
-            // Smooth scroll to result
-            setTimeout(() => {
-                resultDiv.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'nearest' 
-                });
-            }, 100);
-        }
-        
-        // Add some interactive elements
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add subtle animations on load
-            document.querySelector('.container').style.opacity = '0';
-            document.querySelector('.container').style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                document.querySelector('.container').style.transition = 'all 0.6s ease';
-                document.querySelector('.container').style.opacity = '1';
-                document.querySelector('.container').style.transform = 'translateY(0)';
-            }, 100);
+            updateProcessButton();
         });
+        
+        templateFileInput.addEventListener('change', function(e) {
+            templateFile = e.target.files[0];
+            if (templateFile) {
+                document.getElementById('templateFileInfo').innerHTML = `✅ Selected: ${templateFile.name} (${(templateFile.size/1024).toFixed(1)}KB)`;
+                document.getElementById('templateFileInfo').style.display = 'block';
+            }
+            updateProcessButton();
+        });
+        
+        function updateProcessButton() {
+            processButton.disabled = !(sourceFile && templateFile);
+        }
+        
+        // Form submission - Now using FormData for binary upload
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!sourceFile || !templateFile) {
+                showStatus('Please select both source and template files', 'error');
+                return;
+            }
+            
+            showStatus('Processing files...', 'processing');
+            processButton.disabled = true;
+            
+            try {
+                // Create FormData for binary file upload
+                const formData = new FormData();
+                formData.append('data0', sourceFile);  // n8n expects this naming
+                formData.append('data1', templateFile);
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    body: formData // Send as FormData, not JSON
+                });
+                
+                if (response.ok) {
+                    // If response is a file, download it
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/vnd.openxmlformats')) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Filled_Lesson_Plan_${new Date().getTime()}.docx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        showStatus('✅ Success! Your filled lesson plan has been downloaded.', 'success');
+                    } else {
+                        const result = await response.json();
+                        showStatus(result.message || 'Files processed successfully!', 'success');
+                    }
+                } else {
+                    const error = await response.text();
+                    showStatus(`Error: ${error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network error: ${error.message}`, 'error');
+            } finally {
+                processButton.disabled = false;
+            }
+        });
+        
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
     </script>
 </body>
 </html>
